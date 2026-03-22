@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 import ollama
 from database import SessionLocal, engine, Base
@@ -79,4 +80,6 @@ async def generate_bullets(data: GenerateRequest, db: Session = Depends(get_db))
 
 @app.get("/generations", response_model=list[GenerationResponse])
 def get_generations(db: Session = Depends(get_db)):
-    return db.query(Generation).order_by(Generation.created_at.desc()).all()
+    query = text("SELECT * FROM generations ORDER BY created_at DESC")
+    results = db.execute(query).all()
+    return results
